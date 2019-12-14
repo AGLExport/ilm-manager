@@ -19,21 +19,27 @@ CWindowManager::~CWindowManager()
 	
 }
 //-----------------------------------------------------------------------------
+CWindowManager CWindowManager::m_Win;
+
+CWindowManager* CWindowManager::getInstance()
+{
+	return &m_Win;
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 void CWindowManager::ILMSurfaceCallbackFunctionStatic(t_ilm_uint id, struct ilmSurfaceProperties* sp, t_ilm_notification_mask m)
 {
-	extern CWindowManager *g_pwin;
+	CWindowManager *pwin = CWindowManager::getInstance();
 	
-	printf("CWindowManager::ILMSurfaceCallbackFunctionStatic: surface (%d) created\n",id);
-	g_pwin->ILMSurfaceCallbackFunction(id, sp, m);
+	pwin->ILMSurfaceCallbackFunction(id, sp, m);
 }
 //-----------------------------------------------------------------------------
 void CWindowManager::ILMCallBackFunctionStatic(ilmObjectType object, t_ilm_uint id, t_ilm_bool created, void *user_data)
 {
-	CWindowManager *p = (CWindowManager*)user_data;
+	CWindowManager *pwin = CWindowManager::getInstance();
 	
-	printf("CWindowManager::ILMCallBackFunctionStatic: surface (%d) created\n",id);
-	
-	p->ILMCallBackFunction(object, id, created);
+	pwin->ILMCallBackFunction(object, id, created);
 }
 //-----------------------------------------------------------------------------
 void CWindowManager::ILMSurfaceCallbackFunction(t_ilm_uint id, struct ilmSurfaceProperties* sp, t_ilm_notification_mask m)
@@ -135,22 +141,65 @@ bool CWindowManager::WindowManagerInitialize()
 		return false;
 	}
 	
+	this->m_Config = new (std::nothrow)CILMConfig();
+	
 	this->ScreenSearch();
 	
-	int num = m_Screen.size();
-	for(int i=0;i < num;i++)
-	{
-		CIVILayer * ivilayer = new (std::nothrow) CIVILayer();
-		ivilayer->CreateLayer(0, 0, 0, m_Screen[i]->GetScreenWidth(), m_Screen[i]->GetScreenHight(), ((i+1)*1024));
-		this->m_Screen[i]->AddLayer(ivilayer);
-	}
+	this->CreateLayers();
 	
 	::ilm_registerNotification(ILMCallBackFunctionStatic, (void*)this);
 	
 	return true;
 }
 //-----------------------------------------------------------------------------
-int CWindowManager::ScreenSearch()
+bool CWindowManager::CreateLayers()
+{
+	int layernum;
+	
+	layernum = this->m_Config->GetLayerNum();
+	
+	for(int i=0;i < layernum;i++)
+	{
+		std::string layername, screenname;
+		
+		if (this->m_Config->GetLayerName(i, layername) == true )
+		{
+			if (this->m_Config->GetLayerAttachScreen(i, screenname) == true )
+			{
+				t_ilm_uint id, width, height, z;
+				CIVIScreen* psc = this->GetScreenByName(screenname);
+				
+				if (psc != NULL)
+				{
+					if (this->m_Config->GetLayerInfo(i, id, width, height, z) == true)
+					{
+						CIVILayer * ivilayer = new (std::nothrow) CIVILayer();
+						ivilayer->CreateLayer(0, 0, 0, width, height, id, layername);
+						psc->AddLayer(ivilayer);
+					}
+				}
+			}
+		}
+	}
+	
+	return true;
+}
+//-----------------------------------------------------------------------------
+CIVIScreen* CWindowManager::GetScreenByName(std::string name)
+{
+	int num = m_Screen.size();
+	for(int i=0;i < num;i++)
+	{
+		if (this->m_Screen[i]->GetScreenName() == name)
+		{
+			return this->m_Screen[i];
+		}
+	}
+	
+	return NULL;
+}
+//-----------------------------------------------------------------------------
+bool CWindowManager::ScreenSearch()
 {
 	struct ilmScreenProperties screenProperties;
 	t_ilm_uint* screen_IDs = NULL;
@@ -169,14 +218,20 @@ int CWindowManager::ScreenSearch()
 		CIVIScreen *psc = new(std::nothrow) CIVIScreen();
 		if ( psc != NULL)
 		{
-			psc->SetParameter(screen_IDs[i], std::string(screenProperties.connectorName), screenProperties.screenWidth, screenProperties.screenHeight);
-			int num = this->m_Screen.size();
-			this->m_Screen.resize(num+1);
-			this->m_Screen[num] = psc;
+			std::string screenname, connectorname = std::string(screenProperties.connectorName);
+			if (this->m_Config->GetScreenNameByConnectorName(connectorname, screenname) == true)
+			{
+				psc->SetParameter(screen_IDs[i], screenname, connectorname, screenProperties.screenWidth, screenProperties.screenHeight);
+				int num = this->m_Screen.size();
+				this->m_Screen.resize(num+1);
+				this->m_Screen[num] = psc;
+			}
 		}
 	}
 	
 	::free(screen_IDs);
+	
+	return true;
 }
 //-----------------------------------------------------------------------------
 

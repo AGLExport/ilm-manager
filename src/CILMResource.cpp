@@ -48,7 +48,8 @@ CIVILayer::~CIVILayer()
 	
 }
 //-----------------------------------------------------------------------------
-bool CIVILayer::CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint width, t_ilm_uint height, t_ilm_uint id)
+bool CIVILayer::CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint width, t_ilm_uint height,
+							t_ilm_uint id, std::string layername )
 {
 	this->m_X = x;;
 	this->m_Y = y;
@@ -56,9 +57,13 @@ bool CIVILayer::CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint
 	this->m_Width = width;
 	this->m_Height = height;
 	this->m_Id = id;
+	this->m_LayerName = layername;
 	
 	ilm_layerCreateWithDimension(&this->m_Id, this->m_Width, this->m_Height);
 	ilm_layerSetVisibility(this->m_Id,ILM_TRUE);
+	
+	printf("Create Layer(%s) id(%u),x(%d),y(%d),z(%d),w(%d),h(%d)\n",this->m_LayerName.c_str(), this->m_Id,
+			this->m_X, this->m_Y, this->m_Z, this->m_Width, this->m_Height);
 }
 //-----------------------------------------------------------------------------
 bool CIVILayer::AddSurface(CIVISurface *psurface)
@@ -139,12 +144,15 @@ CIVIScreen::~CIVIScreen()
 	
 }
 //-----------------------------------------------------------------------------
-void CIVIScreen::SetParameter(t_ilm_uint id, std::string name, t_ilm_uint width, t_ilm_uint height)
+void CIVIScreen::SetParameter(t_ilm_uint id, std::string sname, std::string cname, t_ilm_uint width, t_ilm_uint height)
 {
-	this->m_ConnectorName = name;
+	this->m_Name = sname;
+	this->m_ConnectorName = cname;
 	this->m_Width = width;
 	this->m_Height = height;
 	this->m_Id = id;
+	
+	printf("Screen: name=%s (%s)  size(%ux%u) id:%u\n",m_Name.c_str(),m_ConnectorName.c_str(), width, height, id);
 }
 //-----------------------------------------------------------------------------
 bool CIVIScreen::AddLayer(CIVILayer *player)
@@ -182,12 +190,9 @@ bool CIVIScreen::AddLayer(CIVILayer *player)
 		porder[i] = this->m_Layers[i]->GetLayerId();
 	}
 	
-	printf("CIVIScreen::AddLayer: layer (%u) adding\n",this->m_Id);
-	
 	ilm_displaySetRenderOrder(this->m_Id, porder, num);
 
-	printf("CIVIScreen::AddLayer: layer (%u) added\n",this->m_Id);
-
+	printf("CIVIScreen::AddLayer: screen %u layer (%u) added\n",this->m_Id, player->GetLayerId() );
 	
 	::free(porder);
 	

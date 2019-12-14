@@ -1,0 +1,56 @@
+{
+	"screen": [
+		{
+			"name": "cluster-screen",
+			"dispname": "LVDS-1"
+		},
+		{
+			"name": "ivi-screen",
+			"dispname": "LVDS-2"
+		}
+	],
+	"layer": [
+		{
+			"name": "cluster-layer",
+			"id": 1000,
+			"width": 1920,
+			"height": 720,
+			"z": 10,
+			"attach": "cluster-screen"
+		},
+		{
+			"name": "ivi-layer",
+			"id": 2000,
+			"width": 1920,
+			"height": 1080,
+			"z": 10,
+			"attach": "ivi-screen"
+		}
+	],
+	"surface": [
+		{
+			"name": "agl-cluster",
+			"id": 10,
+			"x": 0,
+			"y": 0,
+			"z": 100,
+			"attach": "cluster-layer"
+		},
+		{
+			"name": "mominavi",
+			"id": 2010,
+			"x": 0,
+			"y": 0,
+			"z": 100,
+			"attach": "ivi-layer"
+		},
+		{
+			"name": "homescreen",
+			"id": 2020,
+			"x": 0,
+			"y": 0,
+			"z": 100,
+			"attach": "ivi-layer"
+		}
+	]
+}

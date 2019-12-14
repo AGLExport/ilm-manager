@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "ilm_control.h"
+#include <ilm_control.h>
 
 //-----------------------------------------------------------------------------
 class CIVISurface
@@ -48,6 +48,7 @@ class CIVILayer
 private:
 protected:
 	std::vector< CIVISurface* > m_Surfaces;
+	std::string m_LayerName;
 	
 	t_ilm_uint m_X;
 	t_ilm_uint m_Y;
@@ -71,7 +72,8 @@ public:
 	CIVISurface* GetSurfaceById(t_ilm_uint id);
 	
 	//method
-	bool CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint width, t_ilm_uint height, t_ilm_uint id);
+	bool CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint width, t_ilm_uint height,
+					 t_ilm_uint id, std::string layername);
 	
 	
 	CIVILayer();
@@ -87,6 +89,7 @@ private:
 protected:
 	std::vector< CIVILayer* > m_Layers;
 	
+	std::string m_Name;
 	std::string m_ConnectorName;
 	t_ilm_uint m_Width;
 	t_ilm_uint m_Height;
@@ -97,6 +100,7 @@ public:
 	bool AddLayer(CIVILayer *player);
 	
 	// get method
+	std::string GetScreenName() { return this->m_Name; }
 	t_ilm_uint GetScreenId() { return this->m_Id; }
 	t_ilm_uint GetScreenWidth(){ return this->m_Width; }
 	t_ilm_uint GetScreenHight(){ return this->m_Height; }
@@ -105,7 +109,7 @@ public:
 	CIVISurface* GetSurfaceById(t_ilm_uint id);
 	
 	//method
-	void SetParameter(t_ilm_uint id, std::string name, t_ilm_uint width, t_ilm_uint height);
+	void SetParameter(t_ilm_uint id, std::string sname, std::string cname, t_ilm_uint width, t_ilm_uint height);
 	
 	CIVIScreen();
 	CIVIScreen(const CIVIScreen&) = delete;

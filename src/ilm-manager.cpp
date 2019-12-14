@@ -39,7 +39,6 @@ int signal_setup(void)
 //---------------------------------------------------------------------------------------------------------------
 
 
-CWindowManager *g_pwin;
 //---------------------------------------------------------------------------------------------------------------
 int main (int argc, char *argv[]) 
 {
@@ -55,9 +54,9 @@ int main (int argc, char *argv[])
 	pfds[0].events = POLLIN;
 	pfds[0].revents = 0;
 	
-	g_pwin = new (std::nothrow) CWindowManager();
+	CWindowManager *pwin = CWindowManager::getInstance();
 	
-	g_pwin->WindowManagerInitialize();
+	pwin->WindowManagerInitialize();
 	
 	do
 	{

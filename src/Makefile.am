@@ -14,6 +14,7 @@ bin_PROGRAMS = ilmmanager
 ilmmanager_SOURCES = \
 		CWindowManager.cpp \
 		CILMResource.cpp \
+		CILMConfig.cpp \
 		ilm-manager.cpp 
 
 
