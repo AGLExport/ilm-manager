@@ -214,6 +214,21 @@ CIVILayer* CIVIScreen::GetLayerById(t_ilm_uint id)
 	return NULL;
 }
 //-----------------------------------------------------------------------------
+CIVILayer* CIVIScreen::GetLayerByName(std::string layername)
+{
+	int num = this->m_Layers.size();
+
+	for(int i=0; i < num; i++)
+	{
+		if (this->m_Layers[i]->GetLayerId() == id)
+		{
+			return this->m_Layers[i];
+		}
+	}
+	
+	return NULL;
+}
+//-----------------------------------------------------------------------------
 CIVISurface* CIVIScreen::GetSurfaceById(t_ilm_uint id)
 {
 	int num = this->m_Layers.size();

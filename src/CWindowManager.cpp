@@ -94,8 +94,13 @@ void CWindowManager::ILMCallBackFunction(ilmObjectType object, t_ilm_uint id, t_
 bool CWindowManager::HandlingSurface(t_ilm_uint id, t_ilm_uint width, t_ilm_uint height)
 {
 	t_ilm_uint lid = 0;
-	CIVISurface *psurface = new CIVISurface();
-	CIVILayer *player = NULL;
+	t_ilm_uint x=0, y=0, z=0;
+	std::string surfacename, layername
+	
+	if (GetSurfaceInfoById(id, surfacename, layername, x, y, z) == true)
+	{
+		CIVISurface *psurface = new CIVISurface();
+		CIVILayer *player = NULL;
 
 
 	if (id < (2*1024))

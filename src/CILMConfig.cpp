@@ -187,8 +187,59 @@ bool CILMConfig::GetLayerInfo(int num, t_ilm_uint &id, t_ilm_uint &width, t_ilm_
 	return false;
 }
 //-----------------------------------------------------------------------------
-
-
+bool GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std::string &layername, t_ilm_uint &x, t_ilm_uint &y, t_ilm_uint &z)
+{
+	x = 0;
+	y = 0;
+	z = 20;
+	
+	if (this->m_JsonValue["surface"].isArray() == true )
+	{
+		//have a child value
+		Json::Value surfacess = this->m_JsonValue["surface"];
+		
+		Json::Value::ArrayIndex max, count;
+		max = layers.size();
+		
+		for( count=0; count < max; count++ )
+		{
+			Json::Value surface = surfaces[count];
+				
+			// must need parameta
+			if ( surface.isMember("id") == true)
+			{
+				t_ilm_uint sid = = t_ilm_uint(surface["id"].asUInt());
+				if (id == sid)
+				{
+					if (surface.isMember("name") == true && surface.isMember("attach"))
+					{
+						surfacename = surface["attach"].asString();
+						layername = surface["attach"].asString();
+						
+						if (surface.isMember("x") == true)
+						{
+							x = t_ilm_uint(surface["x"].asUInt());
+						}
+						
+						if (surface.isMember("y") == true)
+						{
+							y = t_ilm_uint(surface["y"].asUInt());
+						}
+						
+						if (surface.isMember("z") == true)
+						{
+							z = t_ilm_uint(surface["z"].asUInt());
+						}
+						
+						return true;
+					}
+				}
+			}
+		}
+	}
+	
+	return false;
+}
 
 //-----------------------------------------------------------------------------
 
