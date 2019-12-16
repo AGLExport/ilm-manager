@@ -24,11 +24,16 @@ protected:
 	bool CreateLayers();
 	
 	bool HandlingSurface(t_ilm_uint id, t_ilm_uint width, t_ilm_uint height);
+	bool RemoveSurface(t_ilm_uint id);
 	
 	void ILMCallBackFunction(ilmObjectType object, t_ilm_uint id, t_ilm_bool created);
 	void ILMSurfaceCallbackFunction(t_ilm_uint id, struct ilmSurfaceProperties* sp, t_ilm_notification_mask m);
 	
 	CIVIScreen* GetScreenByName(std::string name);
+	CIVILayer* GetLayerByName(std::string layername);
+	
+	CIVILayer* GetLayerById(t_ilm_uint id);
+	CIVISurface* GetSurfaceById(t_ilm_uint id);
 	
 	// singleton
 	static CWindowManager m_Win;

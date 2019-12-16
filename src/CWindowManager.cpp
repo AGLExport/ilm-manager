@@ -44,13 +44,13 @@ void CWindowManager::ILMCallBackFunctionStatic(ilmObjectType object, t_ilm_uint 
 //-----------------------------------------------------------------------------
 void CWindowManager::ILMSurfaceCallbackFunction(t_ilm_uint id, struct ilmSurfaceProperties* sp, t_ilm_notification_mask m)
 {
-	printf("CWindowManager::ILMSurfaceCallbackFunction: surface (%d) created\n",id);
-	
 	if ((unsigned)m & ILM_NOTIFICATION_CONFIGURED)
 	{
+#ifdef _USER_DEBUG_
+		printf("CWindowManager::ILMSurfaceCallbackFunction: surface (%d) configured \n",id);
+#endif
 		this->HandlingSurface(id, sp->origSourceWidth, sp->origSourceHeight);
 	}
-	printf("CWindowManager::ILMSurfaceCallbackFunction-out: surface (%d) created\n",id);
 }
 //-----------------------------------------------------------------------------
 void CWindowManager::ILMCallBackFunction(ilmObjectType object, t_ilm_uint id, t_ilm_bool created)
@@ -61,33 +61,42 @@ void CWindowManager::ILMCallBackFunction(ilmObjectType object, t_ilm_uint id, t_
 	{
 		if (created == ILM_TRUE )
 		{
-			printf("CWindowManager::ILMCallBackFunction: surface (%d) created\n",id);
 			ilm_getPropertiesOfSurface(id, &sp);
 			
 			if ((sp.origSourceWidth != 0) && (sp.origSourceHeight !=0))
 			{   // surface is already configured
+#ifdef _USER_DEBUG_
 				printf("CWindowManager::ILMCallBackFunction: surface (%d) is already configured \n",id);
+#endif
 				this->HandlingSurface(id, sp.origSourceWidth, sp.origSourceHeight);
 			}
 			else
 			{
 				// wait for configured event
+#ifdef _USER_DEBUG_
 				printf("CWindowManager::ILMCallBackFunction: surface (%d) wait for configured event \n",id);
+#endif
 				ilm_surfaceAddNotification(id,&ILMSurfaceCallbackFunctionStatic);
 				ilm_commitChanges();
 			}
 		}
 		else
 		{
-			printf("CWindowManager::ILMCallBackFunction: surface (%u) destroyed\n",id);
+#ifdef _USER_DEBUG_
+			printf("CWindowManager::ILMCallBackFunction: surface (%d) remove \n",id);
+#endif
+			ilm_surfaceRemoveNotification(id);
+			this->RemoveSurface(id);
 		}
 	}
 	else if (object == ILM_LAYER)
 	{
+#ifdef _USER_DEBUG_
 		if (created == ILM_TRUE )
 			printf("CWindowManager::ILMCallBackFunction: layer (%u) created\n",id);
 		else
 			printf("CWindowManager::ILMCallBackFunction: layer (%u) destroyed\n",id);
+#endif
 	}
 }
 //-----------------------------------------------------------------------------
@@ -95,48 +104,48 @@ bool CWindowManager::HandlingSurface(t_ilm_uint id, t_ilm_uint width, t_ilm_uint
 {
 	t_ilm_uint lid = 0;
 	t_ilm_uint x=0, y=0, z=0;
-	std::string surfacename, layername
+	std::string surfacename, layername;
 	
-	if (GetSurfaceInfoById(id, surfacename, layername, x, y, z) == true)
+	if (this->m_Config->GetSurfaceInfoById(id, surfacename, layername, x, y, z) == true)
 	{
 		CIVISurface *psurface = new CIVISurface();
 		CIVILayer *player = NULL;
-
-
-	if (id < (2*1024))
-	{
-		player = this->m_Screen[0]->GetLayerById(1024);
+		
+		player = this->GetLayerByName(layername);
+		
+		if (player != NULL)
+		{
+			psurface->ConfiguredSurface(id, x, y, z, width, height);
+			
+			player->AddSurface(psurface);
+			
+			ilm_commitChanges();
+		}
 	}
-	else
-	{
-		player = this->m_Screen[1]->GetLayerById(1024*2);
-	}
-	psurface->ConfiguredSurface(id);
-	psurface->ConfiguredSurface(width, height);
-
-	ilm_surfaceSetDestinationRectangle(id, 0, 0, width, height);
-	ilm_surfaceSetSourceRectangle(id, 0, 0, width, height);
-	ilm_surfaceSetVisibility(id, ILM_TRUE);
-	
-	player->AddSurface(psurface);
-	
-/*
-	if (id < (2*1024))
-	{
-		ilm_layerAddSurface(1*1024,id);
-	}
-	else
-	{
-		ilm_layerAddSurface(2*1024,id);
-	}
-*/	
-	ilm_commitChanges();
-
-    printf("layer-add-surfaces: surface (%u) configured with:\n"
+#ifdef _USER_DEBUG_
+	printf("layer-add-surfaces: surface (%u) configured with:\n"
            "    dst region: x:0 y:0 w:%u h:%u\n"
            "    src region: x:0 y:0 w:%u h:%u\n"
            "    visibility: TRUE\n"
            "    added to layer\n", id, width, height, width, height);
+#endif
+}
+//-----------------------------------------------------------------------------
+bool CWindowManager::RemoveSurface(t_ilm_uint id)
+{
+	CIVISurface* psurface = this->GetSurfaceById(id);
+	
+	if (psurface != NULL)
+	{
+		CIVILayer *player = psurface->GetParentLayer();
+		player->RemoveSurface(psurface);
+		ilm_commitChanges();
+		
+		delete psurface;
+		return true;
+	}
+	
+	return false;
 }
 //-----------------------------------------------------------------------------
 bool CWindowManager::WindowManagerInitialize()
@@ -198,6 +207,51 @@ CIVIScreen* CWindowManager::GetScreenByName(std::string name)
 		if (this->m_Screen[i]->GetScreenName() == name)
 		{
 			return this->m_Screen[i];
+		}
+	}
+	
+	return NULL;
+}
+//-----------------------------------------------------------------------------
+CIVILayer* CWindowManager::GetLayerByName(std::string layername)
+{
+	int num = m_Screen.size();
+	for(int i=0;i < num;i++)
+	{
+		CIVILayer* pLayer = this->m_Screen[i]->GetLayerByName(layername);
+		if (pLayer != NULL)
+		{
+			return pLayer;
+		}
+	}
+	
+	return NULL;
+}
+//-----------------------------------------------------------------------------
+CIVILayer* CWindowManager::GetLayerById(t_ilm_uint id)
+{
+	int num = m_Screen.size();
+	for(int i=0;i < num;i++)
+	{
+		CIVILayer* pLayer = this->m_Screen[i]->GetLayerById(id);
+		if (pLayer != NULL)
+		{
+			return pLayer;
+		}
+	}
+	
+	return NULL;
+}
+//-----------------------------------------------------------------------------
+CIVISurface* CWindowManager::GetSurfaceById(t_ilm_uint id)
+{
+	int num = m_Screen.size();
+	for(int i=0;i < num;i++)
+	{
+		CIVISurface* psurface = this->m_Screen[i]->GetSurfaceById(id);
+		if (psurface != NULL)
+		{
+			return psurface;
 		}
 	}
 	

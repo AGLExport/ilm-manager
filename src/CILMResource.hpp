@@ -6,12 +6,15 @@
 
 #include <ilm_control.h>
 
+class CIVILayer;
+class CIVIScreen;
 //-----------------------------------------------------------------------------
 class CIVISurface
 {
 private:
 protected:
 	bool m_IsConfigured;
+	CIVILayer *m_ParentLayer;
 	
 	t_ilm_uint m_X;
 	t_ilm_uint m_Y;
@@ -22,7 +25,7 @@ protected:
 	
 public:
 	// set method
-	
+	void SetParentLayer(CIVILayer* parent){ this->m_ParentLayer = parent; }
 	
 	// get method
 	t_ilm_uint GetSurfaceId() { return this->m_Id; }
@@ -32,9 +35,11 @@ public:
 	t_ilm_uint GetSurfaceY(){ return this->m_Y; }
 	t_ilm_uint GetSurfaceZ(){ return this->m_Z; }
 	
+	CIVILayer* GetParentLayer(){ return this->m_ParentLayer; }
+
+	
 	// method
-	bool ConfiguredSurface(t_ilm_uint width, t_ilm_uint height);
-	bool ConfiguredSurface(t_ilm_uint id);
+	bool ConfiguredSurface(t_ilm_uint id, t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint width, t_ilm_uint height);
 	
 	CIVISurface();
 	CIVISurface(const CIVISurface&) = delete;
@@ -59,9 +64,9 @@ protected:
 	
 public:
 	// set method
-	bool AddSurface(CIVISurface *psurface);
 	
 	// get method
+	std::string GetLayerName() { return this->m_LayerName; }
 	t_ilm_uint GetLayerId() { return this->m_Id; }
 	t_ilm_uint GetLayerWidth(){ return this->m_Width; }
 	t_ilm_uint GetLayerHight(){ return this->m_Height; }
@@ -75,6 +80,8 @@ public:
 	bool CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint width, t_ilm_uint height,
 					 t_ilm_uint id, std::string layername);
 	
+	bool AddSurface(CIVISurface *psurface);
+	bool RemoveSurface(CIVISurface *psurface);
 	
 	CIVILayer();
 	CIVILayer(const CIVILayer&) = delete;
@@ -106,6 +113,8 @@ public:
 	t_ilm_uint GetScreenHight(){ return this->m_Height; }
 	
 	CIVILayer* GetLayerById(t_ilm_uint id);
+	CIVILayer* GetLayerByName(std::string layername);
+	
 	CIVISurface* GetSurfaceById(t_ilm_uint id);
 	
 	//method

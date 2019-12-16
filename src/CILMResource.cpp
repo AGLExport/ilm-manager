@@ -21,17 +21,22 @@ CIVISurface::~CIVISurface()
 	
 }
 //-----------------------------------------------------------------------------
-bool CIVISurface::ConfiguredSurface(t_ilm_uint width, t_ilm_uint height)
+bool CIVISurface::ConfiguredSurface(t_ilm_uint id, t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint width, t_ilm_uint height)
 {
+	this->m_Id = id;
+	this->m_X = x;
+	this->m_Y = y;
+	this->m_Z = z;
 	this->m_Width = width;
 	this->m_Height = height;
 	
+	::ilm_surfaceSetDestinationRectangle(this->m_Id, this->m_X, this->m_Y, this->m_Width, this->m_Height);
+	::ilm_surfaceSetSourceRectangle(this->m_Id, 0, 0, this->m_Width, this->m_Height);
+	::ilm_surfaceSetVisibility(this->m_Id, ILM_TRUE);
+	
 }
 //-----------------------------------------------------------------------------
-bool CIVISurface::ConfiguredSurface(t_ilm_uint id)
-{
-	this->m_Id = id;
-}
+
 //-----------------------------------------------------------------------------
 // CIVILayer
 //-----------------------------------------------------------------------------
@@ -59,11 +64,12 @@ bool CIVILayer::CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint
 	this->m_Id = id;
 	this->m_LayerName = layername;
 	
-	ilm_layerCreateWithDimension(&this->m_Id, this->m_Width, this->m_Height);
-	ilm_layerSetVisibility(this->m_Id,ILM_TRUE);
-	
+	::ilm_layerCreateWithDimension(&this->m_Id, this->m_Width, this->m_Height);
+	::ilm_layerSetVisibility(this->m_Id,ILM_TRUE);
+#ifdef _USER_DEBUG_
 	printf("Create Layer(%s) id(%u),x(%d),y(%d),z(%d),w(%d),h(%d)\n",this->m_LayerName.c_str(), this->m_Id,
 			this->m_X, this->m_Y, this->m_Z, this->m_Width, this->m_Height);
+#endif
 }
 //-----------------------------------------------------------------------------
 bool CIVILayer::AddSurface(CIVISurface *psurface)
@@ -101,13 +107,52 @@ bool CIVILayer::AddSurface(CIVISurface *psurface)
 		porder[i] = this->m_Surfaces[i]->GetSurfaceId();
 	}
 	
-	printf("CIVILayer::AddSurface: surface (%u) adding\n",this->m_Id);
+	ilm_layerSetRenderOrder(this->m_Id, porder, num);
+	
+	psurface->SetParentLayer(this);
+	
+#ifdef _USER_DEBUG_
+	printf("CIVILayer::AddSurface: surface (%u) added\n",this->m_Id);
+#endif	
+	::free(porder);
+	
+	return true;
+}
+//-----------------------------------------------------------------------------
+bool CIVILayer::RemoveSurface(CIVISurface *psurface)
+{
+	int num = this->m_Surfaces.size();
+	
+	for (int i=0;i < num;i++)
+	{
+		if (this->m_Surfaces[i] == psurface)
+		{
+			i++;
+			for (;i < num;i++)
+			{
+				this->m_Surfaces[i-1] = this->m_Surfaces[i];
+			}
+			this->m_Surfaces.resize(num-1);
+		}
+	}
+	
+	num = this->m_Surfaces.size();
+	
+	t_ilm_layer *porder = (t_ilm_layer *)::malloc(sizeof(t_ilm_layer) * (num+1));
+	::memset(porder,0,sizeof(t_ilm_layer) * (num+1));
+	
+	for(int i=0;i < num;i++)
+	{
+		porder[i] = this->m_Surfaces[i]->GetSurfaceId();
+	}
 	
 	ilm_layerSetRenderOrder(this->m_Id, porder, num);
 	
-	printf("CIVILayer::AddSurface: surface (%u) added\n",this->m_Id);
-	
 	::free(porder);
+
+#ifdef _USER_DEBUG_
+	printf("CIVILayer::AddSurface: surface (%u) removed\n",psurface->GetSurfaceId());
+#endif
 	
 	return true;
 }
@@ -151,8 +196,9 @@ void CIVIScreen::SetParameter(t_ilm_uint id, std::string sname, std::string cnam
 	this->m_Width = width;
 	this->m_Height = height;
 	this->m_Id = id;
-	
+#ifdef _USER_DEBUG_
 	printf("Screen: name=%s (%s)  size(%ux%u) id:%u\n",m_Name.c_str(),m_ConnectorName.c_str(), width, height, id);
+#endif
 }
 //-----------------------------------------------------------------------------
 bool CIVIScreen::AddLayer(CIVILayer *player)
@@ -192,7 +238,9 @@ bool CIVIScreen::AddLayer(CIVILayer *player)
 	
 	ilm_displaySetRenderOrder(this->m_Id, porder, num);
 
+#ifdef _USER_DEBUG_
 	printf("CIVIScreen::AddLayer: screen %u layer (%u) added\n",this->m_Id, player->GetLayerId() );
+#endif
 	
 	::free(porder);
 	
@@ -220,7 +268,7 @@ CIVILayer* CIVIScreen::GetLayerByName(std::string layername)
 
 	for(int i=0; i < num; i++)
 	{
-		if (this->m_Layers[i]->GetLayerId() == id)
+		if (this->m_Layers[i]->GetLayerName() == layername)
 		{
 			return this->m_Layers[i];
 		}

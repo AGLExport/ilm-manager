@@ -42,12 +42,16 @@ CILMConfig::CILMConfig()
 		Json::Reader reader;
 		if (reader.parse(jsonstring, this->m_JsonValue) == false)
 		{
+#ifdef _USER_DEBUG_
 			printf("fail to json parse :%s\n%s\n",filename.c_str(),jsonstring.c_str());
+#endif
 		}
 	}
 	else
 	{
+#ifdef _USER_DEBUG_
 		printf("fail file open :%s\n",filename.c_str());
+#endif
 	}
 }
 //-----------------------------------------------------------------------------
@@ -187,7 +191,7 @@ bool CILMConfig::GetLayerInfo(int num, t_ilm_uint &id, t_ilm_uint &width, t_ilm_
 	return false;
 }
 //-----------------------------------------------------------------------------
-bool GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std::string &layername, t_ilm_uint &x, t_ilm_uint &y, t_ilm_uint &z)
+bool CILMConfig::GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std::string &layername, t_ilm_uint &x, t_ilm_uint &y, t_ilm_uint &z)
 {
 	x = 0;
 	y = 0;
@@ -196,10 +200,10 @@ bool GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std::string &la
 	if (this->m_JsonValue["surface"].isArray() == true )
 	{
 		//have a child value
-		Json::Value surfacess = this->m_JsonValue["surface"];
+		Json::Value surfaces = this->m_JsonValue["surface"];
 		
 		Json::Value::ArrayIndex max, count;
-		max = layers.size();
+		max = surfaces.size();
 		
 		for( count=0; count < max; count++ )
 		{
@@ -208,7 +212,7 @@ bool GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std::string &la
 			// must need parameta
 			if ( surface.isMember("id") == true)
 			{
-				t_ilm_uint sid = = t_ilm_uint(surface["id"].asUInt());
+				t_ilm_uint sid = t_ilm_uint(surface["id"].asUInt());
 				if (id == sid)
 				{
 					if (surface.isMember("name") == true && surface.isMember("attach"))
