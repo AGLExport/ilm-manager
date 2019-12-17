@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include <stdlib.h>
+#include <unistd.h>
 
 
 //-----------------------------------------------------------------------------
@@ -150,9 +151,9 @@ bool CWindowManager::RemoveSurface(t_ilm_uint id)
 //-----------------------------------------------------------------------------
 bool CWindowManager::WindowManagerInitialize()
 {
-	if (ilm_init() == ILM_FAILED)
+	while (ilm_init() == ILM_FAILED)
 	{
-		return false;
+		usleep(10000);	//10ms
 	}
 	
 	this->m_Config = new (std::nothrow)CILMConfig();
