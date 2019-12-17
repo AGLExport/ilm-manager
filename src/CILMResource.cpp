@@ -88,10 +88,10 @@ bool CIVILayer::AddSurface(CIVISurface *psurface)
 			if (this->m_Surfaces[i-1]->GetSurfaceZ() > psurface->GetSurfaceZ())
 			{
 				this->m_Surfaces[i] = this->m_Surfaces[i-1];
+				this->m_Surfaces[i-1]  = psurface;
 			}
 			else
 			{
-				this->m_Surfaces[i] = psurface;
 				break;
 			}
 		}
