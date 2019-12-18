@@ -193,7 +193,7 @@ bool CILMConfig::GetLayerInfo(int num, t_ilm_uint &id, t_ilm_uint &width, t_ilm_
 				}
 				if ( layer.isMember("y") == true )
 				{
-					x = t_ilm_uint(layer["y"].asUInt());
+					y = t_ilm_uint(layer["y"].asUInt());
 				}
 				
 				return true;
