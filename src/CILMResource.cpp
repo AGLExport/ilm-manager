@@ -65,6 +65,8 @@ bool CIVILayer::CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint
 	this->m_LayerName = layername;
 	
 	::ilm_layerCreateWithDimension(&this->m_Id, this->m_Width, this->m_Height);
+	::ilm_layerSetSourceRectangle(this->m_Id, 0, 0, this->m_Width, this->m_Height);
+	::ilm_layerSetDestinationRectangle(this->m_Id, this->m_X, this->m_Y, this->m_Width, this->m_Height);
 	::ilm_layerSetVisibility(this->m_Id,ILM_TRUE);
 #ifdef _USER_DEBUG_
 	printf("Create Layer(%s) id(%u),x(%d),y(%d),z(%d),w(%d),h(%d)\n",this->m_LayerName.c_str(), this->m_Id,
@@ -83,13 +85,13 @@ bool CIVILayer::AddSurface(CIVISurface *psurface)
 	for (int j=0;j<num;j++)
 	{
 		count = 0;
-		for(int i=num; i > 0; i--)
+		for(int i=num-j; i > 0; i--)
 		{
-			if (this->m_Surfaces[i-1]->GetSurfaceZ() > this->m_Surfaces[i]->GetSurfaceZ())
+			if (this->m_Surfaces[i-1]->GetSurfaceZ() < this->m_Surfaces[i]->GetSurfaceZ())
 			{
-				CIVISurface *psurface = this->m_Surfaces[i];
+				CIVISurface *psu = this->m_Surfaces[i];
 				this->m_Surfaces[i] = this->m_Surfaces[i-1];
-				this->m_Surfaces[i-1]  = psurface;
+				this->m_Surfaces[i-1]  = psu;
 				count++;
 			}
 		}
@@ -207,16 +209,18 @@ bool CIVIScreen::AddLayer(CIVILayer *player)
 	int count = 0;
 	this->m_Layers.resize(num+1);
 
+	this->m_Layers[num] = player;
+
 	for (int j=0;j<num;j++)
 	{
 		count = 0;
-		for(int i=num; i > 0; i--)
+		for(int i=num-j; i > 0; i--)
 		{
-			if (this->m_Layers[i-1]->GetLayerZ() > this->m_Layers[i]->GetLayerZ() )
+			if (this->m_Layers[i-1]->GetLayerZ() < this->m_Layers[i]->GetLayerZ() )
 			{
-				CIVILayer *player =  this->m_Layers[i];
+				CIVILayer *ply =  this->m_Layers[i];
 				this->m_Layers[i] = this->m_Layers[i-1];
-				this->m_Layers[i-1] = player;
+				this->m_Layers[i-1] = ply;
 				count++;
 			}
 		}

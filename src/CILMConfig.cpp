@@ -161,7 +161,7 @@ bool CILMConfig::GetLayerAttachScreen(int num, std::string &name)
 	return false;
 }
 //-----------------------------------------------------------------------------
-bool CILMConfig::GetLayerInfo(int num, t_ilm_uint &id, t_ilm_uint &width, t_ilm_uint &height, t_ilm_uint &z)
+bool CILMConfig::GetLayerInfo(int num, t_ilm_uint &id, t_ilm_uint &width, t_ilm_uint &height, t_ilm_uint &x, t_ilm_uint &y, t_ilm_uint &z)
 {
 	if (this->m_JsonValue["layer"].isArray() == true )
 	{
@@ -183,6 +183,18 @@ bool CILMConfig::GetLayerInfo(int num, t_ilm_uint &id, t_ilm_uint &width, t_ilm_
 				width = t_ilm_uint(layer["width"].asUInt());
 				height = t_ilm_uint(layer["height"].asUInt());
 				z = t_ilm_uint(layer["z"].asUInt());
+				x = 0;
+				y = 0;
+				
+				//any
+				if ( layer.isMember("x") == true )
+				{
+					x = t_ilm_uint(layer["x"].asUInt());
+				}
+				if ( layer.isMember("y") == true )
+				{
+					x = t_ilm_uint(layer["y"].asUInt());
+				}
 				
 				return true;
 			}

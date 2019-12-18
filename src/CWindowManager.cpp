@@ -181,15 +181,15 @@ bool CWindowManager::CreateLayers()
 		{
 			if (this->m_Config->GetLayerAttachScreen(i, screenname) == true )
 			{
-				t_ilm_uint id, width, height, z;
+				t_ilm_uint id, width, height, x, y, z;
 				CIVIScreen* psc = this->GetScreenByName(screenname);
 				
 				if (psc != NULL)
 				{
-					if (this->m_Config->GetLayerInfo(i, id, width, height, z) == true)
+					if (this->m_Config->GetLayerInfo(i, id, width, height, x, y, z) == true)
 					{
 						CIVILayer * ivilayer = new (std::nothrow) CIVILayer();
-						ivilayer->CreateLayer(0, 0, 0, width, height, id, layername);
+						ivilayer->CreateLayer(x, y, z, width, height, id, layername);
 						psc->AddLayer(ivilayer);
 					}
 				}
