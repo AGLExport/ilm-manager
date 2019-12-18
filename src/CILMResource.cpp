@@ -75,26 +75,26 @@ bool CIVILayer::CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint
 bool CIVILayer::AddSurface(CIVISurface *psurface)
 {
 	int num = this->m_Surfaces.size();
+	int count = 0;
 	this->m_Surfaces.resize(num+1);
 	
-	if (num == 0)
+	this->m_Surfaces[num] = psurface;
+
+	for (int j=0;j<num;j++)
 	{
-		this->m_Surfaces[0] = psurface;
-	}
-	else
-	{
+		count = 0;
 		for(int i=num; i > 0; i--)
 		{
-			if (this->m_Surfaces[i-1]->GetSurfaceZ() > psurface->GetSurfaceZ())
+			if (this->m_Surfaces[i-1]->GetSurfaceZ() > this->m_Surfaces[i]->GetSurfaceZ())
 			{
+				CIVISurface *psurface = this->m_Surfaces[i];
 				this->m_Surfaces[i] = this->m_Surfaces[i-1];
 				this->m_Surfaces[i-1]  = psurface;
-			}
-			else
-			{
-				break;
+				count++;
 			}
 		}
+		
+		if(count==0) break;
 	}
 	
 	num = this->m_Surfaces.size();
@@ -204,26 +204,24 @@ void CIVIScreen::SetParameter(t_ilm_uint id, std::string sname, std::string cnam
 bool CIVIScreen::AddLayer(CIVILayer *player)
 {
 	int num = this->m_Layers.size();
+	int count = 0;
 	this->m_Layers.resize(num+1);
-	
-	if (num == 0)
+
+	for (int j=0;j<num;j++)
 	{
-		m_Layers[0] = player;
-	}
-	else
-	{
+		count = 0;
 		for(int i=num; i > 0; i--)
 		{
-			if (this->m_Layers[i-1]->GetLayerZ() > player->GetLayerZ())
+			if (this->m_Layers[i-1]->GetLayerZ() > this->m_Layers[i]->GetLayerZ() )
 			{
+				CIVILayer *player =  this->m_Layers[i];
 				this->m_Layers[i] = this->m_Layers[i-1];
-			}
-			else
-			{
-				this->m_Layers[i] = player;
-				break;
+				this->m_Layers[i-1] = player;
+				count++;
 			}
 		}
+		
+		if(count==0) break;
 	}
 	
 	num = this->m_Layers.size();
