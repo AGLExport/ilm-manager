@@ -34,6 +34,7 @@ bool CIVISurface::ConfiguredSurface(t_ilm_uint id, t_ilm_uint x, t_ilm_uint y, t
 	::ilm_surfaceSetSourceRectangle(this->m_Id, 0, 0, this->m_Width, this->m_Height);
 	::ilm_surfaceSetVisibility(this->m_Id, ILM_TRUE);
 	
+	return true;
 }
 //-----------------------------------------------------------------------------
 
@@ -72,6 +73,8 @@ bool CIVILayer::CreateLayer(t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint
 	printf("Create Layer(%s) id(%u),x(%d),y(%d),z(%d),w(%d),h(%d)\n",this->m_LayerName.c_str(), this->m_Id,
 			this->m_X, this->m_Y, this->m_Z, this->m_Width, this->m_Height);
 #endif
+	
+	return true;
 }
 //-----------------------------------------------------------------------------
 bool CIVILayer::AddSurface(CIVISurface *psurface)

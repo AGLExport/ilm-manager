@@ -130,6 +130,8 @@ bool CWindowManager::HandlingSurface(t_ilm_uint id, t_ilm_uint width, t_ilm_uint
            "    visibility: TRUE\n"
            "    added to layer\n", id, width, height, width, height);
 #endif
+	
+	return true;
 }
 //-----------------------------------------------------------------------------
 bool CWindowManager::RemoveSurface(t_ilm_uint id)
