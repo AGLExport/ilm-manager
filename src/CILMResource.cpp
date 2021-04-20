@@ -21,17 +21,26 @@ CIVISurface::~CIVISurface()
 	
 }
 //-----------------------------------------------------------------------------
-bool CIVISurface::ConfiguredSurface(t_ilm_uint id, t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint width, t_ilm_uint height)
+bool CIVISurface::ConfiguredSurface(t_ilm_uint id, t_ilm_uint x, t_ilm_uint y, t_ilm_uint z
+									, t_ilm_uint width, t_ilm_uint height
+									, ilmInputDevice mask)
 {
+	t_ilm_uint idarray[1];
+	
 	this->m_Id = id;
 	this->m_X = x;
 	this->m_Y = y;
 	this->m_Z = z;
 	this->m_Width = width;
 	this->m_Height = height;
+	this->m_InputMask = mask;
 	
 	::ilm_surfaceSetDestinationRectangle(this->m_Id, this->m_X, this->m_Y, this->m_Width, this->m_Height);
 	::ilm_surfaceSetSourceRectangle(this->m_Id, 0, 0, this->m_Width, this->m_Height);
+	
+	idarray[0] = this->m_Id;
+	::ilm_setInputFocus(idarray, 1, this->m_InputMask, ILM_TRUE);
+	
 	::ilm_surfaceSetVisibility(this->m_Id, ILM_TRUE);
 	
 	return true;

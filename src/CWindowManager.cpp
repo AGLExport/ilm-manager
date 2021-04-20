@@ -105,9 +105,10 @@ bool CWindowManager::HandlingSurface(t_ilm_uint id, t_ilm_uint width, t_ilm_uint
 {
 	t_ilm_uint lid = 0;
 	t_ilm_uint x=0, y=0, z=0;
+	ilmInputDevice mask = 0;
 	std::string surfacename, layername;
 	
-	if (this->m_Config->GetSurfaceInfoById(id, surfacename, layername, x, y, z) == true)
+	if (this->m_Config->GetSurfaceInfoById(id, surfacename, layername, x, y, z, mask) == true)
 	{
 		CIVISurface *psurface = new CIVISurface();
 		CIVILayer *player = NULL;
@@ -116,7 +117,7 @@ bool CWindowManager::HandlingSurface(t_ilm_uint id, t_ilm_uint width, t_ilm_uint
 		
 		if (player != NULL)
 		{
-			psurface->ConfiguredSurface(id, x, y, z, width, height);
+			psurface->ConfiguredSurface(id, x, y, z, width, height, mask);
 			
 			player->AddSurface(psurface);
 			
@@ -127,8 +128,9 @@ bool CWindowManager::HandlingSurface(t_ilm_uint id, t_ilm_uint width, t_ilm_uint
 	printf("layer-add-surfaces: surface (%u) configured with:\n"
            "    dst region: x:0 y:0 w:%u h:%u\n"
            "    src region: x:0 y:0 w:%u h:%u\n"
+           "    input mask: %X\n"
            "    visibility: TRUE\n"
-           "    added to layer\n", id, width, height, width, height);
+           "    added to layer\n", id, width, height, width, height, (unsigned int)mask);
 #endif
 	
 	return true;

@@ -5,6 +5,7 @@
 #include <string>
 
 #include <ilm_control.h>
+#include <ilm_input.h>
 
 class CIVILayer;
 class CIVIScreen;
@@ -22,6 +23,7 @@ protected:
 	t_ilm_uint m_Width;
 	t_ilm_uint m_Height;
 	t_ilm_uint m_Id;
+	ilmInputDevice m_InputMask;
 	
 public:
 	// set method
@@ -39,7 +41,9 @@ public:
 
 	
 	// method
-	bool ConfiguredSurface(t_ilm_uint id, t_ilm_uint x, t_ilm_uint y, t_ilm_uint z, t_ilm_uint width, t_ilm_uint height);
+	bool ConfiguredSurface(t_ilm_uint id, t_ilm_uint x, t_ilm_uint y, t_ilm_uint z
+							, t_ilm_uint width, t_ilm_uint height
+							, ilmInputDevice mask);
 	
 	CIVISurface();
 	CIVISurface(const CIVISurface&) = delete;

@@ -203,7 +203,9 @@ bool CILMConfig::GetLayerInfo(int num, t_ilm_uint &id, t_ilm_uint &width, t_ilm_
 	return false;
 }
 //-----------------------------------------------------------------------------
-bool CILMConfig::GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std::string &layername, t_ilm_uint &x, t_ilm_uint &y, t_ilm_uint &z)
+bool CILMConfig::GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std::string &layername
+									, t_ilm_uint &x, t_ilm_uint &y, t_ilm_uint &z
+									, ilmInputDevice &inputmask)
 {
 	x = 0;
 	y = 0;
@@ -236,15 +238,44 @@ bool CILMConfig::GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std
 						{
 							x = t_ilm_uint(surface["x"].asUInt());
 						}
+						else
+						{
+							x = 0;
+						}
 						
 						if (surface.isMember("y") == true)
 						{
 							y = t_ilm_uint(surface["y"].asUInt());
 						}
+						else
+						{
+							y = 0;
+						}
 						
 						if (surface.isMember("z") == true)
 						{
 							z = t_ilm_uint(surface["z"].asUInt());
+						}
+						else
+						{
+							z = 0;
+						}
+						
+						if (surface.isMember("input") == true)
+						{
+							ilmInputDevice mask = 0;
+							std::string input = surface["input"].asString();
+							
+							if (input.find("pointer") != std::string::npos) mask |= ILM_INPUT_DEVICE_POINTER;
+							if (input.find("keyboard") != std::string::npos) mask |= ILM_INPUT_DEVICE_KEYBOARD;
+							if (input.find("touch") != std::string::npos) mask |= ILM_INPUT_DEVICE_TOUCH;
+							if (input.find("all") != std::string::npos) mask |= ILM_INPUT_DEVICE_ALL;
+							
+							inputmask = mask;
+						}
+						else
+						{
+							inputmask = 0;
 						}
 						
 						return true;

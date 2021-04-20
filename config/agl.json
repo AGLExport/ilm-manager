@@ -34,6 +34,7 @@
 			"x": 0,
 			"y": 0,
 			"z": 100,
+			"input": "keyboard",
 			"attach": "cluster-layer"
 		},
 		{

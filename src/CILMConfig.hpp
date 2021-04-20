@@ -5,6 +5,7 @@
 #include <string>
 #include <json/json.h>
 #include <ilm_control.h>
+#include <ilm_input.h>
 
 //-----------------------------------------------------------------------------
 class CILMConfig
@@ -29,7 +30,9 @@ public:
 	bool GetLayerInfo(int num, t_ilm_uint &id, t_ilm_uint &width, t_ilm_uint &height, t_ilm_uint &x, t_ilm_uint &y, t_ilm_uint &z);
 	
 	// surface
-	bool GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std::string &layername, t_ilm_uint &x, t_ilm_uint &y, t_ilm_uint &z);
+	bool GetSurfaceInfoById(t_ilm_uint id, std::string &surfacename, std::string &layername
+							, t_ilm_uint &x, t_ilm_uint &y, t_ilm_uint &z
+							, ilmInputDevice &inputmask);
 	
 	
 	CILMConfig();
